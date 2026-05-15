@@ -1,8 +1,8 @@
-# RealArenaTraining
+# Real Arena Training
 
-RealArenaTraining is an xOBSE plugin for Oblivion 1.2.0416 that makes arena practice statics grant real player skill progress through Oblivion's decoded skill-progress path.
+An engine plugin that makes arena practice dummies grant real player skill progress with multipliers and penalties.
 
-The plugin is deliberately narrow. It does not replace normal combat training, does not interrupt NPC hits, and does not award progress for arbitrary props. Custom progress is granted only when the player interacts with the decoded practice statics listed below, matched by base form and NIF model path.
+The plugin uses Oblivion's decoded player skill-progress path instead of fake scripting, spell effects, or quest-side workarounds. When the player hits supported Arena training statics, the appropriate combat skill receives controlled progress based on the object and interaction type. It does not replace normal combat training, NPC combat, or interrupt actor hits. Progress is granted only when the player interacts with the supported practice statics listed below, matched by base form and model path.
 
 ## Features
 
@@ -14,7 +14,7 @@ The plugin is deliberately narrow. It does not replace normal combat training, d
 - Uses Oblivion 1.2.0416's decoded player skill-progress routine at `0x00668B30`.
 - Logs accepted training with `base`, `multiplier`, and `applied` progress values for fidelity checks.
 
-## Supported Training
+## Supported Training Objects
 
 | Static | Interaction | Skill |
 | --- | --- | --- |
@@ -30,11 +30,11 @@ The plugin is deliberately narrow. It does not replace normal combat training, d
 | `TargetHay01` | Blade weapon hit | Blade |
 | `TargetHay01` | Blunt weapon hit | Blunt |
 
-Unsupported weapons, unrelated statics, actors, and NPC combat are ignored by RealArenaTraining's custom training path.
+Unsupported weapons, unrelated statics, actors, and NPC combat are ignored by Real Arena Training's custom training path.
 
 ## Progress Multipliers
 
-Per-interaction progress is based on a raw `1.0` skill-progress delta before the target multiplier is applied. `0.5%` is treated as an exact half percent, so the multiplier is `1.005x`.
+Each accepted interaction starts from a raw `1.0` skill-progress delta before the object multiplier is applied. A half-percent bonus is treated as an exact half percent, so `0.5%` becomes a `1.005x` multiplier.
 
 | Static | Skill | Multiplier |
 | --- | --- | --- |
@@ -53,62 +53,21 @@ Per-interaction progress is based on a raw `1.0` skill-progress delta before the
 
 ## Installation
 
-1. Install xOBSE for Oblivion 1.2.0416.
-2. Download `RealArenaTraining-1.0.zip` from the GitHub release.
-3. Extract the archive into the Oblivion install folder so the DLL lands at:
+1. Install xOBSE.
+2. Download `RealArenaTraining-1.0.zip`.
+3. Extract the archive into the Oblivion install folder.
+4. Confirm the DLL is installed here:
 
 ```text
 Oblivion\Data\OBSE\Plugins\RealArenaTraining.dll
 ```
 
-4. Launch Oblivion through xOBSE.
+5. Launch Oblivion through xOBSE.
 
-## Logging
+## Credits
 
-The plugin writes to:
+Daggers
 
-```text
-Documents\My Games\Oblivion\OBSE\RealArenaTraining.log
-```
+## Source
 
-Accepted training lines include:
-
-- target reference and base form
-- matched model path
-- selected skill
-- base progress
-- multiplier
-- applied raw progress delta
-- progress before and after
-- required progress
-- skill level before and after
-
-These logs are intended to prove that the plugin is adding progress through Oblivion's decoded skill-progress path and only for the supported statics.
-
-## Building
-
-The repository includes a copied xOBSE/ezobse tree under `ezobse`. Build the plugin from:
-
-```text
-ezobse\obse_plugins\realarenatraining\RealArenaTraining.sln
-```
-
-Use `Release|Win32`. The built DLL is emitted to:
-
-```text
-ezobse\obse_plugins\realarenatraining\Builds\Release\RealArenaTraining.dll
-```
-
-## Decoding Notes
-
-The Oblivion IDA decoding notes are tracked in:
-
-```text
-ida_decode\RealArenaTraining_IDA_notes.md
-```
-
-Oblivion's IDA database is treated as authoritative. Fallout material was used only for naming or contrast after Oblivion behavior was observed.
-
-## Changelog
-
-See [CHANGELOG.md](CHANGELOG.md).
+https://github.com/KinzhaldeDagas/RealArenaTraining
