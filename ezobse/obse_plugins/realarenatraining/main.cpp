@@ -57,21 +57,32 @@ namespace
 		kTarget_TargetHay,
 	};
 
-	enum TrainingStaticBaseFormId
-	{
-		kForm_ArenaHeavyBag01 = 0x00159450,
-		kForm_ChainDollArena01 = 0x00027FD8,
-		kForm_ChainDoll01 = 0x00000E06,
-		kForm_ArenaDummy1 = 0x000693D7,
-		kForm_TargetHay01 = 0x00000D45,
-	};
-
 	const float kTrainingProgress_Normal = 1.0f;
 	const float kTrainingProgress_HalfRate = 0.5f;
 	const float kTrainingProgress_HalfPercentBonus = 1.005f;
 	const float kTrainingProgress_ArenaDummyBladeBonus = 1.5f;
 	const float kTrainingProgress_HeavyBagBladeBluntPenalty = 0.96f;
 	const float kTrainingProgress_TargetHayBladeBluntPenalty = 0.98f;
+
+	enum TrainingModelPathFingerprint
+	{
+		kModelHash_ArenaHeavyBag01 = 0x90A29F11,
+		kModelHash_ChainDollArena01 = 0xD6B42764,
+		kModelHash_ChainDoll01 = 0x4970EBAF,
+		kModelHash_ChainDoll02 = 0x8432F02E,
+		kModelHash_TargetHeavy01 = 0x5D13CC8B,
+		kModelHash_TargetHay01 = 0xD1FB87BE,
+	};
+
+	enum TrainingModelPathLength
+	{
+		kModelLen_ArenaHeavyBag01 = 38,
+		kModelLen_ChainDollArena01 = 39,
+		kModelLen_ChainDoll01 = 37,
+		kModelLen_ChainDoll02 = 37,
+		kModelLen_TargetHeavy01 = 39,
+		kModelLen_TargetHay01 = 37,
+	};
 
 	struct CallPatch
 	{
@@ -126,19 +137,40 @@ namespace
 		}
 	}
 
-	bool ContainsNoCase(const char* text, const char* needle)
+	char NormalizeModelPathChar(char value)
 	{
-		if (!text || !needle || !needle[0])
-			return false;
+		if (value == '/')
+			return '\\';
+		if (value >= 'A' && value <= 'Z')
+			return value + ('a' - 'A');
+		return value;
+	}
 
-		const size_t needleLength = strlen(needle);
-		for (const char* cur = text; *cur; ++cur)
+	UInt32 ModelPathHash(const char* path)
+	{
+		UInt32 hash = 0x811C9DC5;
+		if (!path)
+			return hash;
+
+		for (const char* cur = path; *cur; ++cur)
 		{
-			if (_strnicmp(cur, needle, needleLength) == 0)
-				return true;
+			hash ^= static_cast<UInt8>(NormalizeModelPathChar(*cur));
+			hash *= 0x01000193;
 		}
 
-		return false;
+		return hash;
+	}
+
+	UInt32 ModelPathNormalizedLength(const char* path)
+	{
+		return path ? static_cast<UInt32>(strlen(path)) : 0;
+	}
+
+	bool ModelPathMatches(const char* path, UInt32 expectedHash, UInt32 expectedLength)
+	{
+		return path &&
+			ModelPathNormalizedLength(path) == expectedLength &&
+			ModelPathHash(path) == expectedHash;
 	}
 
 	UInt32 PtrValue(const void* ptr)
@@ -228,26 +260,21 @@ namespace
 		if (!path)
 			return kTarget_None;
 
-		switch (ref->baseForm->refID)
+		if (ModelPathMatches(path, kModelHash_ArenaHeavyBag01, kModelLen_ArenaHeavyBag01))
+			return kTarget_ArenaHeavyBag;
+
+		if (ModelPathMatches(path, kModelHash_ChainDollArena01, kModelLen_ChainDollArena01) ||
+			ModelPathMatches(path, kModelHash_ChainDoll01, kModelLen_ChainDoll01) ||
+			ModelPathMatches(path, kModelHash_ChainDoll02, kModelLen_ChainDoll02))
 		{
-			case kForm_ArenaHeavyBag01:
-				return ContainsNoCase(path, "ArenaHeavyBag01") ? kTarget_ArenaHeavyBag : kTarget_None;
-
-			case kForm_ChainDollArena01:
-				return ContainsNoCase(path, "ChainDollArena01") ? kTarget_ChainDoll : kTarget_None;
-
-			case kForm_ChainDoll01:
-				return ContainsNoCase(path, "ChainDoll01") ? kTarget_ChainDoll : kTarget_None;
-
-			case kForm_TargetHay01:
-				return ContainsNoCase(path, "TargetHay01") ? kTarget_TargetHay : kTarget_None;
-
-			case kForm_ArenaDummy1:
-				return ContainsNoCase(path, "TargetHeavy01") ? kTarget_ArenaDummy1 : kTarget_None;
-
-			default:
-				break;
+			return kTarget_ChainDoll;
 		}
+
+		if (ModelPathMatches(path, kModelHash_TargetHeavy01, kModelLen_TargetHeavy01))
+			return kTarget_ArenaDummy1;
+
+		if (ModelPathMatches(path, kModelHash_TargetHay01, kModelLen_TargetHay01))
+			return kTarget_TargetHay;
 
 		return kTarget_None;
 	}

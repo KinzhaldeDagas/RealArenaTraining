@@ -2,6 +2,27 @@
 
 All notable RealArenaTraining changes are tracked here.
 
+## 1.0.2 - 2026-05-16
+
+### Changed
+
+- Changed runtime target matching from base-form plus model-path checks to exact normalized NIF/model-path checks for statics.
+- Expanded training to every static using the decoded training NIF paths, including generic `TargetHeavy01` forms and `ChainDoll02`.
+- `Clutter\FightersGuild\TargetHeavy01.NIF` now uses the same Blade/Blunt behavior everywhere it appears.
+- `Clutter\FightersGuild\ChainDoll02.NIF` now uses the same Chain Doll behavior as `ChainDollArena01` and `ChainDoll01`.
+
+## 1.0.1 - 2026-05-16
+
+### Changed
+
+- Replaced loose substring model checks with exact normalized model-path fingerprints using FNV-1a32 plus path length.
+- Kept base-form ID gating as the primary runtime discriminator so `ArenaDummy1` remains distinct from generic `TargetHeavy01`, even though both use `Clutter\FightersGuild\TargetHeavy01.NIF`.
+
+### Added
+
+- Added `docs/ArenaDummyInventory.md` with all parsed vanilla placements for the relevant heavy bag, chain doll, heavy target, Arena dummy, and hay target static bases.
+- Added offline SHA-256 values for the vanilla NIF payloads extracted from `Oblivion - Meshes.bsa`.
+
 ## 1.0.0 - 2026-05-15
 
 Initial public release.
